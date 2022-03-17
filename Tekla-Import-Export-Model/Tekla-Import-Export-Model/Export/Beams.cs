@@ -16,7 +16,7 @@ namespace Tekla_Import_Export_Model.Export
         /// <param name="outStringList"></param>
         public static void ExportBeams(List<Beam> beamList, List<Point> beamCOG, List<double> BeamWeight, List<string> outStringList)
         {
-            foreach (Beam beam in beamList)
+            foreach (var beam in beamList)
             {
                 var beamStringListLocal = new List<string>();
                 beamStringListLocal.Add("###beamStart###"); //0
