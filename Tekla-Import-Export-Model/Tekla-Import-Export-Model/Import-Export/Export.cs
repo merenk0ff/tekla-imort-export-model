@@ -12,7 +12,7 @@ namespace Tekla_Import_Export_Model.Export
 {
     public class Export
     {
-        public static void ExportModel(Preference preference)
+        public static void ExportModel(MySettings settings)
         {
             var model = new Model();
             ModelObjectEnumerator moe;
@@ -92,42 +92,42 @@ namespace Tekla_Import_Export_Model.Export
             }
 
             //Export
-            if (preference.Beams)
+            if (settings.Beams)
             {
                 Beams.ExportBeams(beamList, beamCOG, BeamWeight, outStringList);
             }
 
-            if (preference.PolyBeams)
+            if (settings.PolyBeams)
             {
                 PolyBeams.ExportPolyBeam(polyBeamList, outStringList, polyBeamWeight);
             }
 
-            if (preference.ContourPlates)
+            if (settings.ContourPlates)
             {
                 ContourPlates.ExportContourPlates(cplList, contourPointCOG, contourPlateWeight, outStringList);
             }
 
-            if (preference.Fittings)
+            if (settings.Fittings)
             {
                 Fittings.ExportFittings(fittingList, outStringList);
             }
 
-            if (preference.BoltArrays)
+            if (settings.BoltArrays)
             {
                 BoltArrays.ExportBoltArray(boltArrayList, outStringList);
             }
 
-            if (preference.BoltXY)
+            if (settings.BoltXY)
             {
                 BoltXYs.ExportBoltXY(boltXYList, outStringList);
             }
 
-            if (preference.Welds)
+            if (settings.Welds)
             {
                 Welds.ExportWelds(weldList, outStringList, polygonWeldList);
             }
 
-            if (preference.BooleanParts)
+            if (settings.BooleanParts)
             {
                 BooleanParts.ExportBooleanParts(booleanPartList, outStringList);
             }

@@ -1,6 +1,6 @@
 ﻿namespace Tekla_Import_Export_Model
 {
-    public class Preference
+    public class MySettings
     {
        public bool ContourPlates { get; set; }
        public bool Beams { get; set; }
@@ -12,7 +12,7 @@
        public bool Welds{ get; set; }
        public bool CheckPlates{ get; set; }
 
-       public Preference()
+       public MySettings()
        {
            ContourPlates = true;
            Beams = true;

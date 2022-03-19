@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Tekla.Structures.Model;
 
@@ -32,6 +33,18 @@ namespace Tekla_Import_Export_Model.Export
 
                 outStringList.Add(outString.ToString());
             }
+        }
+
+        public static void ImportPhases(string[] properties, List<Phase> phaseList)
+        {
+            var phase = new Phase
+            {
+                PhaseComment = properties[1],
+                PhaseName = properties[2],
+                PhaseNumber = Convert.ToInt32(properties[3])
+            };
+            phase.Insert();
+            phaseList.Add(phase);
         }
     }
 }
