@@ -1,7 +1,10 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Text;
+using Tekla.Structures;
 using Tekla.Structures.Model;
+using Tekla_Import_Export_Model.Import_Export;
 
 namespace Tekla_Import_Export_Model.Export
 {
@@ -89,6 +92,106 @@ namespace Tekla_Import_Export_Model.Export
                 }
 
                 outStringList.Add(outString.ToString());
+            }
+        }
+
+        public static void ImportBoltXYs(List<Identifier> idNew, List<string> idOriginal, string[] properties, Model m, List<string> boltIdlist,
+           List<string> boltIdNewlist, ref int boltArrayCount)
+        {
+            try
+            {
+                var boltXY = new BoltXYList();
+
+                var ID = idNew[idOriginal.IndexOf(properties[29])];
+                var ID2 = idNew[idOriginal.IndexOf(properties[30])];
+
+                boltXY.PartToBeBolted = m.SelectModelObject(ID) as Part;
+                boltXY.PartToBoltTo = m.SelectModelObject(ID2) as Part;
+                boltXY.FirstPosition = Helper.ConvertStringToPoint(properties[8]);
+                boltXY.SecondPosition = Helper.ConvertStringToPoint(properties[9]);
+                var distXlist = Helper.getBoltDist(properties[27]);
+                var distYlist = Helper.getBoltDist(properties[28]);
+                foreach (var d in distXlist)
+                    boltXY.AddBoltDistX(d);
+                foreach (var d in distYlist)
+                    boltXY.AddBoltDistY(d);
+                boltXY.Bolt = Convert.ToBoolean(properties[31]);
+                boltXY.Hole1 = Convert.ToBoolean(properties[10]);
+                boltXY.Hole2 = Convert.ToBoolean(properties[11]);
+                boltXY.Hole3 = Convert.ToBoolean(properties[12]);
+                boltXY.Hole4 = Convert.ToBoolean(properties[13]);
+                boltXY.Hole5 = Convert.ToBoolean(properties[14]);
+                boltXY.Nut1 = Convert.ToBoolean(properties[16]);
+                boltXY.Nut2 = Convert.ToBoolean(properties[17]);
+                boltXY.Washer1 = Convert.ToBoolean(properties[23]);
+                boltXY.Washer2 = Convert.ToBoolean(properties[24]);
+                boltXY.Washer3 = Convert.ToBoolean(properties[25]);
+                boltXY.Tolerance = Convert.ToDouble(properties[22]);
+                boltXY.Position = Helper.GetBeamPosition(properties[26]);
+
+                boltXY.BoltStandard = properties[2];
+
+                boltXY.BoltSize = Convert.ToDouble(properties[1]);
+
+                if (properties[3] == "BOLT_TYPE_SITE")
+                    boltXY.BoltType = BoltGroup.BoltTypeEnum.BOLT_TYPE_SITE;
+                else
+                    boltXY.BoltType = BoltGroup.BoltTypeEnum.BOLT_TYPE_WORKSHOP;
+
+                if (properties[21] == "THREAD_IN_MATERIAL_YES")
+                    boltXY.ThreadInMaterial = BoltGroup.BoltThreadInMaterialEnum.THREAD_IN_MATERIAL_YES;
+                else
+                    boltXY.ThreadInMaterial = BoltGroup.BoltThreadInMaterialEnum.THREAD_IN_MATERIAL_NO;
+
+                boltXY.CutLength = Convert.ToDouble(properties[4]);
+                boltXY.SlottedHoleX = Convert.ToDouble(properties[19]);
+                boltXY.SlottedHoleY = Convert.ToDouble(properties[20]);
+                boltXY.ExtraLength = Convert.ToDouble(properties[7]);
+
+                if (properties[15] == "HOLE_TYPE_OVERSIZED")
+                    boltXY.HoleType = BoltGroup.BoltHoleTypeEnum.HOLE_TYPE_OVERSIZED;
+                else
+                    boltXY.HoleType = BoltGroup.BoltHoleTypeEnum.HOLE_TYPE_SLOTTED;
+                if (properties[18] == "ROTATE_SLOTS_EVEN")
+                    boltXY.RotateSlots = BoltGroup.BoltRotateSlotsEnum.ROTATE_SLOTS_EVEN;
+                else if (properties[18] == "ROTATE_SLOTS_ODD")
+                    boltXY.RotateSlots = BoltGroup.BoltRotateSlotsEnum.ROTATE_SLOTS_ODD;
+                else
+                    boltXY.RotateSlots = BoltGroup.BoltRotateSlotsEnum.ROTATE_SLOTS_PARALLEL;
+
+                boltXY.StartPointOffset.Dx = Helper.ConvertStringToPoint(properties[5]).X;
+                boltXY.StartPointOffset.Dy = Helper.ConvertStringToPoint(properties[5]).Y;
+                boltXY.StartPointOffset.Dz = Helper.ConvertStringToPoint(properties[5]).Z;
+
+                boltXY.EndPointOffset.Dx = Helper.ConvertStringToPoint(properties[6]).X;
+                boltXY.EndPointOffset.Dy = Helper.ConvertStringToPoint(properties[6]).Y;
+                boltXY.EndPointOffset.Dz = Helper.ConvertStringToPoint(properties[6]).Z;
+
+                foreach (string hhh in properties)
+                {
+                    if (hhh.Contains("OTHERPART"))
+                    {
+                        try
+                        {
+                            var other = hhh.Split('$');
+                            var ID3 = idNew[idOriginal.IndexOf(other[1])];
+                            boltXY.AddOtherPartToBolt(m.SelectModelObject(ID3) as Part);
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+
+                boltIdlist.Add(properties[32]);
+
+                boltXY.Insert();
+                boltXY.Select();
+                boltIdNewlist.Add(boltXY.Identifier.ID.ToString());
+            }
+            catch
+            {
+                boltArrayCount++;
             }
         }
     }

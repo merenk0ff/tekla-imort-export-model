@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Tekla.Structures;
 using Tekla.Structures.Model;
+using Tekla_Import_Export_Model.Import_Export;
 
 namespace Tekla_Import_Export_Model.Export
 {
@@ -49,6 +52,34 @@ namespace Tekla_Import_Export_Model.Export
                 beam.GetReportProperty("WEIGHT_GROSS", ref localWeight);
                 polyBeamWeight.Add(localWeight);
             }
+        }
+
+        public static void ImportPolyBeams(string[] properties, List<string> idList, List<string> idOriginal, List<Identifier> idNew)
+        {
+            var _beam = new PolyBeam();
+
+
+            _beam.Position = Helper.GetBeamPosition(properties[8]);
+            _beam.Profile.ProfileString = properties[1];
+            if (_beam.Profile.ProfileString.Contains("PL"))
+                _beam.Profile.ProfileString = _beam.Profile.ProfileString.Replace("PL", "—");
+            _beam.Material.MaterialString = properties[2];
+            if (_beam.Material.MaterialString.Contains("345-3"))
+                _beam.Material.MaterialString.Replace("345-3", "345-6");
+            _beam.Class = properties[3];
+            _beam.AssemblyNumber.Prefix = properties[4];
+            _beam.Name = properties[5];
+            for (var i = 9; i < properties.Count() - 1; i++)
+            {
+                _beam.Contour.AddContourPoint(Helper.ConvertStringToContourPoint(properties[i]));
+            }
+
+            _beam.Insert();
+
+            _beam.Select();
+            idList.Add(properties[6] + "$" + _beam.Identifier.ID.ToString());
+            idOriginal.Add(properties[6]);
+            idNew.Add(_beam.Identifier);
         }
     }
 }

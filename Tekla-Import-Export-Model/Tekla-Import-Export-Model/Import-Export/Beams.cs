@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using Tekla.Structures;
 using Tekla.Structures.Model;
 using Tekla.Structures.Geometry3d;
+using Tekla_Import_Export_Model.Import_Export;
 
 namespace Tekla_Import_Export_Model.Export
 {
@@ -94,5 +97,52 @@ namespace Tekla_Import_Export_Model.Export
             }
         }
 
+
+        public static void ImportBeams(string[] properties, List<Beam> beamList, List<Phase> phaseList, List<string> idList, List<string> idOriginal,
+           List<Identifier> idNew)
+        {
+            var _beam = new Beam();
+            _beam.StartPoint = Helper.ConvertStringToPoint(properties[1]);
+            _beam.EndPoint = Helper.ConvertStringToPoint(properties[2]);
+
+            _beam.StartPointOffset.Dx = Helper.ConvertStringToPoint(properties[3]).X;
+            _beam.StartPointOffset.Dy = Helper.ConvertStringToPoint(properties[3]).Y;
+            _beam.StartPointOffset.Dz = Helper.ConvertStringToPoint(properties[3]).Z;
+
+            _beam.EndPointOffset.Dx = Helper.ConvertStringToPoint(properties[4]).X;
+            _beam.EndPointOffset.Dy = Helper.ConvertStringToPoint(properties[4]).Y;
+            _beam.EndPointOffset.Dz = Helper.ConvertStringToPoint(properties[4]).Z;
+
+            _beam.Position = Helper.GetBeamPosition(properties[12]);
+
+            _beam.Profile.ProfileString = properties[5];
+            if (_beam.Profile.ProfileString.Contains("PL"))
+                _beam.Profile.ProfileString = _beam.Profile.ProfileString.Replace("PL", "—");
+            _beam.Material.MaterialString = properties[6];
+            if (_beam.Material.MaterialString.Contains("345-3"))
+                _beam.Material.MaterialString.Replace("345-3", "345-6");
+
+            _beam.Class = properties[7];
+
+            _beam.AssemblyNumber.Prefix = properties[8];
+            _beam.Name = properties[9];
+
+            _beam.Insert();
+            _beam.Select();
+            beamList.Add(_beam);
+
+            int phaseNumber = Convert.ToInt32(properties[19]);
+            foreach (Phase p in phaseList)
+            {
+                if (p.PhaseNumber == phaseNumber)
+                    _beam.SetPhase(p);
+            }
+
+            _beam.Modify();
+
+            idList.Add(properties[10] + "$" + _beam.Identifier.ID.ToString());
+            idOriginal.Add(properties[10]);
+            idNew.Add(_beam.Identifier);
+        }
     }
 }

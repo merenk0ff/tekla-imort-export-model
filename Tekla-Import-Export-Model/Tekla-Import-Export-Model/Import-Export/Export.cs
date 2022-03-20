@@ -7,6 +7,8 @@ using System.Text;
 using System.Windows.Forms;
 using Tekla.Structures.Model;
 using Tekla.Structures.Geometry3d;
+using NFX.Serialization.Slim;
+using Tekla_Import_Export_Model.Import_Export;
 
 namespace Tekla_Import_Export_Model.Export
 {
@@ -136,6 +138,31 @@ namespace Tekla_Import_Export_Model.Export
 
 
             WriteFileAndShowReport(outStringList, contourPointCOG, beamCOG, contourPlateWeight, polyBeamList, polyBeamWeight, beamList, BeamWeight, boltArrayList, boltXYList);
+
+            
+            ExportEdges(model);
+        }
+
+        private static void ExportEdges(Model model)
+        {
+            var edgeEnum = model.GetModelObjectSelector()
+                .GetAllObjectsWithType(ModelObject.ModelObjectEnum.EDGE_CHAMFER);
+            var edgeChamferList = new List<MyEdge>(edgeEnum.GetSize());
+            while (edgeEnum.MoveNext())
+            {
+                var currentChamfer = edgeEnum.Current as EdgeChamfer;
+                if (currentChamfer.Chamfer.Type == Chamfer.ChamferTypeEnum.CHAMFER_LINE)
+                {
+                    edgeChamferList.Add(MyEdge.CreateEdge(currentChamfer));
+                }
+            }
+
+            using (Stream fStream = new FileStream("C://EXP//#chamfers.list", FileMode.Create,
+                FileAccess.Write, FileShare.None))
+            {
+                var a = new SlimSerializer();
+                a.Serialize(fStream, edgeChamferList);
+            }
         }
 
         private static void WriteFileAndShowReport(
